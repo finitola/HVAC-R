@@ -188,7 +188,7 @@ export function ElectronicsPage() {
 						padding: var(--space-sm);
 					"
 				>
-					📷 დიოდური ხიდის ვიზუალური სქემის სანახავად გადადით ბმულზე
+					📷 დიოდური ხიდი
 				</a>
 				<br />
 				<br />
@@ -384,7 +384,7 @@ export function ElectronicsPage() {
 					padding: var(--space-sm);
 				"
 			>
-				📷 ელექტრო კომპონენტები ვიზუალიზაციისათვის გადადით ბმულზე !
+				📷 ელექტრო კომპონენტები
 			</a>
 		</ul>
 	</div>
@@ -524,3 +524,4 @@ export function ElectronicsPage() {
 </div>
 `
 }
+
