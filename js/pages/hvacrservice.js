@@ -788,7 +788,7 @@ export function HVACRService() {
 						href="https://acerrorcode.com/"
 						target="_blanks"
 					>
-						დააკლიკე! - სანდო ვებ გვერდის ლინკი, თითქმის ყველა ბრენდის სისტემაა
+						Error კოდები
 					</a>
 				</li>
 			</ul>
@@ -805,3 +805,4 @@ export function HVACRService() {
 
 `
 }
+
