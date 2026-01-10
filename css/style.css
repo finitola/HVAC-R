@@ -125,7 +125,7 @@ body {
     line-height: var(--lh-normal);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100dvh;
 }
 
 a {
@@ -1092,5 +1092,24 @@ input[type="radio"] {
 
     .kb-card {
         padding: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .custom-accordion summary {
+        gap: 10px;
+    }
+
+    .custom-accordion summary .card__title {
+        font-size: 1rem;
+        flex: 1;
+        white-space: normal;
+        line-height: 1.4;
+    }
+
+    .custom-accordion summary .read-more {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        flex-shrink: 0;
     }
 }
