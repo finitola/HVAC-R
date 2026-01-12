@@ -112,7 +112,7 @@ export function HVACRLicenseInfo() {
 			</table>
 		</div>
 		<ul class="kb-list">
-			<li><strong>R22 შეზღუდვა:</strong> სრულად იკრძალება 2030 წელს.</li>
+			<li><strong>R22 შეზღუდვა:</strong> სრულად იკრძალება 2040 წელს.</li>
 			<li>
 				<strong>კიგალის დანართი:</strong> არეგულირებს HFC-ების შემცირებას.
 			</li>
@@ -220,3 +220,4 @@ export function HVACRLicenseInfo() {
 
 `
 }
+
