@@ -203,8 +203,7 @@ export function HVACRLicenseInfo() {
 		<h2 style="color: #fd7e14">5. ტექნიკური რჩევები (Best Practices)</h2>
 		<ul class="kb-list">
 			<li>
-				<strong>ვაკუუმირება:</strong> ტენის მოსაშორებლად საჭიროა ვაკუუმის 24
-				საათით შენარჩუნება.
+				<strong>ვაკუუმირება:</strong> გრემოს ტემპერატურაზე ტენის აორთქლებისათვის საკმარისი ვაკუუმის შექმნა
 			</li>
 			<li><strong>ჰერმეტულობის ტესტი:</strong> გამოიყენება მშრალი აზოტი.</li>
 			<li>
@@ -220,4 +219,5 @@ export function HVACRLicenseInfo() {
 
 `
 }
+
 
