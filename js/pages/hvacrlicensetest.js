@@ -116,13 +116,12 @@ window.startQuizAction = () => {
 			isCorrect: i === q.correct,
 		}))
 
-		richOptions.sort(() => 0.5 - Math.random())
+		// richOptions.sort(() => 0.5 - Math.random()) <--- პასუხები რენდომად
 
 		return {
 			q: q.q,
 			options: richOptions.map(o => o.text),
 			correct: richOptions.findIndex(o => o.isCorrect),
-			// originalCorrectText ამოვიღეთ, ზედმეტი იყო
 		}
 	})
 
@@ -293,7 +292,6 @@ function finishTest(timeUp = false, renderOnly = false) {
 window.restartFullTest = () => {
 	sessionStorage.removeItem(STORAGE_KEY)
 	quizState = { ...initialState }
-	// აქ ეწერა window.HVACRLicenseTestPage(), რაც ზედმეტი იყო
 	window.startQuizAction()
 }
 
