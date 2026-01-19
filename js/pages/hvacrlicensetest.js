@@ -304,7 +304,7 @@ window.restartFullTest = () => {
 
 window.exitToHome = () => {
 	sessionStorage.removeItem(STORAGE_KEY)
-	window.location.href = '?page=home'
+	window.location.href = './'
 }
 
 function formatTime(s) {
