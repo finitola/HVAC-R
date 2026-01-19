@@ -57,7 +57,7 @@ function renderStartScreen(container) {
 }
 
 function renderQuiz(
-	container = document.getElementById('hvac-quiz-app-container')
+	container = document.getElementById('hvac-quiz-app-container'),
 ) {
 	if (!container) return
 
@@ -73,7 +73,7 @@ function renderQuiz(
             <span class="hvac-opt-letter">${['A', 'B', 'C', 'D'][idx]}.</span> 
             <span class="hvac-opt-text">${opt}</span>
         </div>
-    `
+    `,
 		)
 		.join('')
 
@@ -105,18 +105,25 @@ function renderQuiz(
     `
 }
 
-// --- Logic ---
-
+// --- Logic --- //
 window.startQuizAction = () => {
-	const shuffledRaw = [...hvacTest].sort(() => 0.5 - Math.random()).slice(0, 30)
+	// 1. ვქმნით მასივის ასლს, რომ ორიგინალი არ დაზიანდეს
+	const allQuestions = [...hvacTest]
+	// 2. Fisher-Yates ალგორითმი (ნამდვილი არევა)
+	for (let i = allQuestions.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1))
+		;[allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]]
+	}
 
-	const processedQuestions = shuffledRaw.map(q => {
+	const selectedQuestionsRaw = allQuestions.slice(0, 30)
+
+	const processedQuestions = selectedQuestionsRaw.map(q => {
 		const richOptions = q.options.map((opt, i) => ({
 			text: opt,
 			isCorrect: i === q.correct,
 		}))
 
-		// richOptions.sort(() => 0.5 - Math.random()) <--- პასუხები რენდომად
+		// richOptions.sort(() => 0.5 - Math.random()); <--- პასუხები რენდომად
 
 		return {
 			q: q.q,
@@ -198,7 +205,7 @@ window.tryFinishTest = () => {
 		alert(
 			`თქვენ გამოტოვებული გაქვთ კითხვა N${
 				firstSkippedIndex + 1
-			}. დასასრულებლად აუცილებელია პასუხის გაცემა.`
+			}. დასასრულებლად აუცილებელია პასუხის გაცემა.`,
 		)
 		quizState.currentIndex = firstSkippedIndex
 		saveState()
@@ -236,8 +243,8 @@ function finishTest(timeUp = false, renderOnly = false) {
 			return `
             <div class="hvac-review-item ${statusClass}">
                 <div class="hvac-review-q"><strong>${idx + 1}.</strong> ${
-				q.q
-			}</div>
+									q.q
+								}</div>
                 <div class="hvac-review-ans">
                     <span class="hvac-label">თქვენი პასუხი:</span> 
                     <span class="hvac-val ${
