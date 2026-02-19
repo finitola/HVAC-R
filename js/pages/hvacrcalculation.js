@@ -71,9 +71,19 @@ export function HVACRCalculationPage() {
 				<option value="R410A">R410A</option>
 				<option value="R32">R32</option>
 				<option value="R22">R22</option>
-				<option value="R134a">R134a</option>
-				<option value="R404A">R404A</option>
-				<option value="R290">R290</option>
+			</select>
+		</div>
+
+		<!-- Dew/Bubble (R410A-ზე აქვს აზრი) -->
+		<div class="calc-group" id="pt-phase-wrap" style="display: none">
+			<label class="calc-label">Saturated ტიპი</label>
+			<select
+				id="pt-phase"
+				class="calc-select"
+				onchange="window.calculatePTChart()"
+			>
+				<option value="dew">Dew (Vapor)</option>
+				<option value="bubble">Bubble (Liquid)</option>
 			</select>
 		</div>
 
@@ -85,6 +95,8 @@ export function HVACRCalculationPage() {
 					id="pt-press"
 					class="calc-input"
 					placeholder="0"
+					step="0.01"
+					inputmode="decimal"
 					oninput="window.calculatePTChart()"
 				/>
 				<select
@@ -93,8 +105,8 @@ export function HVACRCalculationPage() {
 					style="width: 100px"
 					onchange="window.calculatePTChart()"
 				>
-					<option value="PSI">PSI</option>
 					<option value="BAR">Bar</option>
+					<option value="PSI">PSI</option>
 				</select>
 			</div>
 		</div>
