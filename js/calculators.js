@@ -1,124 +1,4 @@
 /* ===============================
-   HVAC/R CALCULATORS LOGIC
-   P-T Calculation using Lookup Tables (Gauge Pressure Corrected)
-================================ */
-
-// ზუსტი მონაცემთა ბაზა (Bar Gauge -> Saturation Temp °C)
-const refrigerantData = {
-	R410A: [
-		{ p: 0, t: -51 },
-		{ p: 4, t: -15.2 },
-		{ p: 6, t: -3.8 },
-		{ p: 8, t: 0.5 },
-		{ p: 10, t: 7.2 },
-		{ p: 12, t: 12.5 },
-		{ p: 15, t: 20.2 },
-		{ p: 20, t: 32.0 },
-		{ p: 25, t: 41.8 },
-		{ p: 30, t: 49.6 },
-		{ p: 35, t: 56.5 },
-		{ p: 40, t: 62.5 },
-	],
-	R32: [
-		{ p: 0, t: -51 },
-		{ p: 4, t: -14.8 },
-		{ p: 6, t: -3.2 },
-		{ p: 8, t: 1.0 },
-		{ p: 10, t: 7.6 },
-		{ p: 12, t: 13.0 },
-		{ p: 15, t: 20.8 },
-		{ p: 20, t: 32.8 },
-		{ p: 25, t: 42.8 },
-		{ p: 30, t: 50.8 },
-		{ p: 35, t: 57.8 },
-		{ p: 40, t: 64.0 },
-	],
-	R22: [
-		{ p: 0, t: -40 },
-		{ p: 2, t: -13.5 },
-		{ p: 4, t: 0.5 },
-		{ p: 5, t: 5.8 },
-		{ p: 6, t: 10.5 },
-		{ p: 8, t: 18.5 },
-		{ p: 10, t: 25.5 },
-		{ p: 12, t: 32.0 },
-		{ p: 15, t: 40.5 },
-		{ p: 18, t: 48.0 },
-		{ p: 20, t: 52.5 },
-		{ p: 25, t: 62.0 },
-	],
-	R134a: [
-		{ p: 0, t: -26 },
-		{ p: 1, t: -10 },
-		{ p: 2, t: 0.5 },
-		{ p: 3, t: 8.5 },
-		{ p: 4, t: 15.5 },
-		{ p: 5, t: 21.5 },
-		{ p: 6, t: 27.0 },
-		{ p: 8, t: 36.5 },
-		{ p: 10, t: 44.5 },
-		{ p: 15, t: 60.0 },
-	],
-	R404A: [
-		{ p: 0, t: -45 },
-		{ p: 2, t: -23 },
-		{ p: 4, t: -9.0 },
-		{ p: 6, t: 2.5 },
-		{ p: 8, t: 12.0 },
-		{ p: 10, t: 20.5 },
-		{ p: 15, t: 36.0 },
-		{ p: 20, t: 48.0 },
-		{ p: 25, t: 58.0 },
-	],
-	R290: [
-		{ p: 0, t: -42 },
-		{ p: 2, t: -19 },
-		{ p: 4, t: -5.0 },
-		{ p: 6, t: 6.5 },
-		{ p: 8, t: 16.0 },
-		{ p: 10, t: 24.5 },
-		{ p: 15, t: 40.0 },
-		{ p: 20, t: 53.0 },
-	],
-}
-
-// ინტერპოლაციის დამხმარე ფუნქცია
-function interpolate(x, x1, y1, x2, y2) {
-	// Linear Interpolation Formula: y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
-	return y1 + ((x - x1) * (y2 - y1)) / (x2 - x1)
-}
-
-// მთავარი ფუნქცია: P -> T კონვერტაცია
-function getSaturationTemp(refrigerant, pressure, unit) {
-	let p_bar = 0
-
-	if (unit === 'PSI') {
-		p_bar = pressure / 14.5038
-	} else {
-		p_bar = pressure
-	}
-
-	const data = refrigerantData[refrigerant]
-	if (!data) return null
-
-	// ვიპოვოთ დიაპაზონი
-	for (let i = 0; i < data.length - 1; i++) {
-		const point1 = data[i]
-		const point2 = data[i + 1]
-
-		if (p_bar >= point1.p && p_bar <= point2.p) {
-			return interpolate(p_bar, point1.p, point1.t, point2.p, point2.t)
-		}
-	}
-
-	// ექსტრაპოლაცია ან ლიმიტი
-	if (p_bar < data[0].p) return data[0].t
-	if (p_bar > data[data.length - 1].p) return data[data.length - 1].t
-
-	return null
-}
-
-/* ===============================
    1. BTU CALCULATOR
 ================================ */
 window.calculateBTU = function () {
@@ -166,7 +46,7 @@ window.calculateBTU = function () {
 	resultText.innerHTML = `
         საჭირო სიმძლავრე: <br>
         <strong style="font-size: 1.4em; color: var(--color-primary)">${Math.round(
-					btu
+					btu,
 				).toLocaleString()} BTU/h</strong>
         <br>
         <span style="font-size: 0.9em; color: var(--color-text-muted)">
@@ -182,27 +62,136 @@ window.calculateBTU = function () {
 }
 
 /* ===============================
-   2. DIGITAL P-T CHART
+   2. P-T Calculator (Danfoss) — R410A / R32 / R22 ONLY
+   Supports: BAR(g), PSI(g)
+   R410A: dew/bubble selectable
 ================================ */
-window.calculatePTChart = function () {
-	const ref = document.getElementById('pt-ref').value
-	const press = parseFloat(document.getElementById('pt-press').value)
-	const unit = document.getElementById('pt-unit').value
-	const display = document.getElementById('pt-display')
-
-	if (isNaN(press)) {
-		display.innerHTML = '--- °C'
-		return
+;(function () {
+	const refIdMap = {
+		R410A: 'r410a',
+		R32: 'r32',
+		R22: 'r22',
 	}
 
-	const temp = getSaturationTemp(ref, press, unit)
+	// მარტივი cache: key -> temp
+	const ptCache = new Map()
 
-	if (temp !== null) {
-		display.innerHTML = `${temp.toFixed(1)} °C`
-	} else {
-		display.innerHTML = 'Error'
+	// debounce ტაიმერი
+	let ptTimer = null
+
+	function normalizeUnit(unit) {
+		// HTML-ში BAR/PSI, ზოგჯერ Bar/PSI შეიძლება
+		const u = String(unit || '').toUpperCase()
+		return u === 'PSI' ? 'psi' : 'bar'
 	}
-}
+
+	function getPhaseForUI(ref) {
+		// R410A-ზე dew/bubble აქვს აზრი
+		if (ref !== 'R410A') return 'dew'
+		const phaseEl = document.getElementById('pt-phase')
+		return phaseEl ? phaseEl.value : 'dew'
+	}
+
+	function togglePhaseUI(ref) {
+		const wrap = document.getElementById('pt-phase-wrap')
+		if (!wrap) return
+		wrap.style.display = ref === 'R410A' ? 'block' : 'none'
+	}
+
+	async function fetchSaturationTempDanfoss({ ref, pressure, unit, phase }) {
+		const refId = refIdMap[ref]
+		if (!refId) return null
+
+		const pressureUnit = normalizeUnit(unit)
+
+		// cache key (დავრგვალოთ წნევა 2 ათწილადზე, რომ cache რეალისტური იყოს)
+		const pKey = Math.round(pressure * 100) / 100
+		const cacheKey = `${ref}|${pressureUnit}|${phase}|${pKey}`
+		if (ptCache.has(cacheKey)) return ptCache.get(cacheKey)
+
+		const body = {
+			pressure: String(pKey),
+			refId,
+			temperatureUnit: 'celsius',
+			pressureUnit, // 'bar' ან 'psi'
+			pressureReferencePoint: 'gauge', // შენს UI-ს ემთხვევა
+			pressureCalculationPoint: phase, // 'dew' ან 'bubble'
+			gaugeType: 'dry',
+			altitudeInMeter: 0,
+		}
+
+		try {
+			const res = await fetch(
+				`https://reftools.danfoss.com/api/ref-slider/temperature?refId=${refId}`,
+				{
+					method: 'POST',
+					headers: { 'content-type': 'application/json; charset=utf-8' },
+					body: JSON.stringify(body),
+				},
+			)
+
+			if (!res.ok) return null
+
+			// API ზოგჯერ plain text number აბრუნებს
+			const txt = await res.text()
+			const t = parseFloat(txt)
+
+			if (!Number.isFinite(t)) return null
+
+			ptCache.set(cacheKey, t)
+			return t
+		} catch (e) {
+			return null
+		}
+	}
+
+	// ეს არის შენი UI-დან დასაძახებელი მთავარი ფუნქცია
+	window.calculatePTChart = function () {
+		const refEl = document.getElementById('pt-ref')
+		const pressEl = document.getElementById('pt-press')
+		const unitEl = document.getElementById('pt-unit')
+		const display = document.getElementById('pt-display')
+
+		if (!refEl || !pressEl || !unitEl || !display) return
+
+		const ref = refEl.value
+		togglePhaseUI(ref)
+
+		const press = parseFloat(pressEl.value)
+		const unit = unitEl.value
+		const phase = getPhaseForUI(ref)
+
+		if (Number.isNaN(press)) {
+			display.innerHTML = '--- °C'
+			return
+		}
+
+		// debounce: აკრეფის დროს არ გავუშვათ ათჯერ fetch
+		if (ptTimer) clearTimeout(ptTimer)
+		ptTimer = setTimeout(async () => {
+			display.innerHTML = '...'
+
+			const temp = await fetchSaturationTempDanfoss({
+				ref,
+				pressure: press,
+				unit,
+				phase,
+			})
+
+			if (temp !== null) {
+				display.innerHTML = `${temp.toFixed(1)} °C`
+			} else {
+				display.innerHTML = 'Error'
+			}
+		}, 250)
+	}
+
+	// პირველად ჩატვირთვაზე UI გაასწორე
+	document.addEventListener('DOMContentLoaded', () => {
+		const refEl = document.getElementById('pt-ref')
+		if (refEl) togglePhaseUI(refEl.value)
+	})
+})()
 
 /* ===============================
    3. UNIT CONVERTER
@@ -301,7 +290,7 @@ window.calculateRefCharge = function () {
 	resultText.innerHTML = `
         დასამატებელია: <br>
         <strong style="font-size: 1.4em; color: var(--color-primary)">${Math.round(
-					addGram
+					addGram,
 				)} გრამი</strong>
         <br>
         <span style="font-size: 0.9em; color: var(--color-text-muted)">
@@ -347,8 +336,8 @@ window.calculateVoltageDrop = function () {
 
 	resultText.innerHTML = `
         ვარდნა: <strong style="font-size: 1.2em; color: ${color}">${vDrop.toFixed(
-		2
-	)} V</strong> (${percentDrop.toFixed(1)}%)
+					2,
+				)} V</strong> (${percentDrop.toFixed(1)}%)
         <br>
         ბოლოში მივა: <strong>${vEnd.toFixed(1)} V</strong>
         <hr style="margin: 5px 0; opacity: 0.5;">
@@ -411,19 +400,20 @@ window.calculateDiagnosis = function () {
 
 	resultText.innerHTML = `
         ${title}: <strong style="font-size: 1.4em;">${diff.toFixed(
-		1
-	)} °C</strong> <br>
+					1,
+				)} °C</strong> <br>
         <span style="color: ${color}; font-weight: bold;">${explanation}</span>
     `
 	resultBox.classList.add('show')
 }
+
 /* ===============================
    7. CONDENSATE RATE CALCULATOR (WITH RECOMMENDATIONS)
 ================================ */
 window.calculateCondensate = function () {
 	const btu = parseFloat(document.getElementById('cond-btu').value)
 	const humidityFactor = parseFloat(
-		document.getElementById('cond-humidity').value
+		document.getElementById('cond-humidity').value,
 	)
 
 	const resultBox = document.getElementById('cond-result')
@@ -463,7 +453,7 @@ window.calculateCondensate = function () {
 	// 4. შედეგის ვიზუალიზაცია
 	resultText.innerHTML = `
         კონდენსატი: <strong style="font-size: 1.4em; color: var(--color-info)">${litersPerHour.toFixed(
-					2
+					2,
 				)} ლ/სთ</strong>
         <br>
         <span style="font-size: 0.9em; color: var(--color-text-muted)">
@@ -525,10 +515,10 @@ window.calculateROI = function () {
         <div style="text-align: left; margin-bottom: 15px; font-size: 0.95rem; line-height: 1.6;">
             ხარჯი თვეში:<br>
             <span style="color: var(--color-danger);">🔴 On/Off (ჩვეულებრივი): <strong>${costOnOff.toFixed(
-							2
+							2,
 						)} ₾</strong></span><br>
             <span style="color: var(--color-success);">🟢 Inverter (ეკონომიური): <strong>${costInverter.toFixed(
-							2
+							2,
 						)} ₾</strong></span>
         </div>
         
@@ -537,7 +527,7 @@ window.calculateROI = function () {
         <div>
             თქვენი ეკონომია:<br>
             <strong style="font-size: 1.6em; color: var(--color-success);">💰 ${Math.round(
-							saveMonth
+							saveMonth,
 						)} ₾</strong> <small>/თვეში</small>
             <br>
             <span style="font-size: 0.9rem; color: var(--color-text-muted);">
@@ -569,7 +559,7 @@ window.calculateAirflow = function () {
 
 	if (deltaT_C <= 0) {
 		alert(
-			'შემავალი ტემპერატურა უნდა იყოს გამომავალზე მაღალი (გაგრილების რეჟიმი)!'
+			'შემავალი ტემპერატურა უნდა იყოს გამომავალზე მაღალი (გაგრილების რეჟიმი)!',
 		)
 		return
 	}
@@ -593,7 +583,7 @@ window.calculateAirflow = function () {
 		// ევროპული სტანდარტი (მ³/სთ)
 		const m3h = cfm * 1.7
 
-		displayMain = Math.round(m3h) + ' მ³/სთ' // <--- m³/h
+		displayMain = Math.round(m3h) + ' მ³/სთ'
 
 		// 3. სტატუსები
 		if (deltaT_C < 8) {
