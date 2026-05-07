@@ -9,7 +9,7 @@ export function HomePage() {
 		<h4 style="color: var(--color-secondary)">
 			Heating, Ventilation, Air Conditioning and Refrigeration
 		</h4>
-<a href="hvacelite.ge">HVAC Elite - ისარგებლე სერვისით</a>
+<a href="https://hvacelite.ge/">HVAC Elite - ისარგებლე სერვისით</a>
 	</div>
 	<div class="stylized-home">
 		<a href="#hvacrlicense" class="stylized-card">
